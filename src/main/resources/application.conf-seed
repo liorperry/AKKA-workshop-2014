@@ -1,0 +1,44 @@
+akka {
+  loglevel = INFO
+
+  # Enable extra trace support for slf4j logging
+  # event-handlers = ["com.typesafe.atmos.trace.Slf4jTraceContextEventHandler"]
+
+  actor {
+    provider = "akka.cluster.ClusterActorRefProvider"
+  }
+
+  remote {
+    log-remote-lifecycle-events = off
+    netty.tcp {
+      hostname = "127.0.0.1"
+      port = 2551
+    }
+  }
+
+  cluster {
+    seed-nodes = ["akka.tcp://ClusterSystem@127.0.0.1:2551","akka.tcp://ClusterSystem@127.0.0.1:2550"]
+    roles = [orchestrator]
+
+    publish-stats-interval = 30s
+    retry-unsuccessful-join-after = 10s
+    auto-down-unreachable-after = off
+
+    failure-detector {
+          threshold = 12
+          acceptable-heartbeat-pause = 30s
+          heartbeat-interval = 5s
+          heartbeat-request {
+            expected-response-after = 10s
+          }
+        }
+
+    role {
+        orchestrator.min-nr-of-members = 1
+        engine.min-nr-of-members = 2
+        feeder.min-nr-of-members = 1
+        trader.min-nr-of-members = 1
+    }
+  }
+}
+
